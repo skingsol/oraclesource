@@ -185,15 +185,29 @@ WHERE salary > (SELECT MAX(salary) FROM employees WHERE job_id = 'SA_MAN');
 
 
 -- 커미션을 버는 사원들의 부서와 연봉이 동일한 사원들의 last_name, department_id, salary 조회
-SELECT e1.last_name, e1.department_id, e1.salary
-FROM employees e1
-WHERE e1.commission_pct IS NOT NULL AND EXISTS 
-    ( SELECT * FROM employees e2 WHERE e2.department_id = e1.department_id AND
-    e2.salary = e1.salary AND e2.employee_id != e1.employee_id);
+SELECT last_name, department_id, salary
+FROM employees
+WHERE (department_id, salary) IN (SELECT department_id, salary FROM employees WHERE commission_pct>0);
 
 -- 회사 전체 평균 연봉보다 더 받는 사원들 중 last_name에 u가 있는 사원들의 근무하는 부서에서 
 -- 근무하는 사원들의 employee_id, last_name, salary 조회
+SELECT employee_id, last_name,salary
+FROM (SELECT DISTINCT department_id 
+         FROM employees 
+         WHERE salary 
+    >(SELECT ROUND(AVG(SALARY),0) FROM employees) AND last_name like '%u%') dept, employees e
+WHERE e.department_id = dept.department_id
+ORDER BY employee_id;
 
 -- last_name이 DAVIES 인 사람보다 나중에 고용된 사원들의 last_name, hire_date 조회
+SELECT last_name, hire_date 
+FROM employees 
+WHERE hire_date >
+(SELECT hire_date FROM employees WHERE last_name = 'Davies')
+ORDER BY hire_date;
 
 -- last_name이 King 인 사원을 매니저로 두고 있는 모든 사원들의 last_name, salary 조회
+SELECT last_name, salary 
+FROM employees
+WHERE manager_id IN
+    (SELECT employee_id FROM employees WHERE last_name='King');
