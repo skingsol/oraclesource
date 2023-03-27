@@ -1914,3 +1914,4 @@ INSERT INTO table_default VALUES('TEST', NULL,'010-1234-5678');
 INSERT INTO table_default(login_id, tel) VALUES('TEST1','010-1234-5678');
 
 SELECT * FROM table_default;
+commit;
