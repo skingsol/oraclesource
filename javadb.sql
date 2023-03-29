@@ -56,10 +56,43 @@ CREATE TABLE product (
 CREATE SEQUENCE product_seq;
 
 -- sorder
--- order_id(숫자-8), user_id(user 테이블의 user_id 참조), product_id(product 테이블에 있는 product_id 참조해서 사용)
+-- order_id(숫자-8), user_id(user 테이블의 user_id 참조),
+-- product_id(product 테이블에 있는 product_id 참조해서 사용)
 CREATE TABLE sorder (
         order_id NUMBER(8) PRIMARY KEY,
         user_id NUMBER(8) NOT NULL REFERENCES suser(user_id),
         product_id NUMBER(8) NOT NULL REFERENCES product(product_id)
 );
+
+ALTER TABLE sorder ADD order_date DATE; --구매날짜
+
 CREATE SEQUENCE order_seq;
+
+-- user_id, name, pay_no, info
+SELECT u.user_id, u.name, u.pay_no, p.info 
+FROM suser u, paytype p 
+WHERE u.pay_no = p.pay_no AND u.user_id =1155;
+
+-- 주문정보 전체 조회
+SELECT * FROM sorder;
+
+-- 주문목록 조회
+-- user_id, name, card/cash, product_id, pname, price, content
+
+-- 기준 : sorder
+-- suser 테이블 : name,
+-- paytype 테이블 : card/cash
+-- product 테이블 : product_id, pname, price, content
+
+-- 전체 주문목록
+SELECT u.user_id, u.name, t.info, p.product_id, p.pname, p.price, p.content, o.order_date
+FROM suser u, sorder o, paytype t, product p 
+WHERE u.user_id = o.user_id AND u.pay_no = t.pay_no AND p.product_id = o.product_id;
+
+
+-- 초록이 주문목록 (특정 사람의 주문목록 1개 조회시 사용)
+SELECT u.user_id, u.name, t.info, p.product_id, p.pname, p.price, p.content, o.order_date
+FROM suser u, sorder o, paytype t, product p 
+WHERE u.user_id = o.user_id AND u.pay_no = t.pay_no AND p.product_id = o.product_id AND u.user_id = 1155;
+
+
