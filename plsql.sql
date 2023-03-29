@@ -142,3 +142,90 @@ BEGIN
     END CASE;
 END;
 /
+
+DECLARE
+    V_NUMBER NUMBER := 87;
+BEGIN
+    CASE 
+    WHEN V_NUMBER >=90 THEN
+         DBMS_OUTPUT.PUT_LINE('A 학점');
+    WHEN V_NUMBER >=80 THEN
+         DBMS_OUTPUT.PUT_LINE('B 학점');
+    WHEN V_NUMBER >=70 THEN
+         DBMS_OUTPUT.PUT_LINE('C 학점');
+    WHEN V_NUMBER >=60 THEN
+         DBMS_OUTPUT.PUT_LINE('D 학점');
+    ELSE DBMS_OUTPUT.PUT_LINE('F 학점');
+    END CASE;
+END;
+/
+
+-- 반복문
+-- LOOP ~ END LOOP, WHILE LOOP, FOR LOOP, Cusor FOR LOOP
+
+DECLARE
+    V_NUM NUMBER := 0;
+BEGIN
+    LOOP
+        DBMS_OUTPUT.PUT_LINE('V_NUM : '|| V_NUM);
+        V_NUM := V_NUM+1;
+        EXIT WHEN V_NUM > 4;
+    END LOOP;
+END;
+/
+
+
+DECLARE
+    V_NUM NUMBER := 0;
+BEGIN
+    WHILE V_NUM < 4 LOOP
+        DBMS_OUTPUT.PUT_LINE('V_NUM : '|| V_NUM);
+        V_NUM := V_NUM+1;
+    END LOOP;
+END;
+/
+
+-- FOR i IN 시작값..종료값 LOOP
+-- 반복수행작업;
+-- END LOOP;
+BEGIN
+    FOR i IN 0..4 LOOP
+        DBMS_OUTPUT.PUT_LINE('i : '|| i);
+    END LOOP;
+END;
+/
+
+BEGIN
+    FOR i IN REVERSE 0..4 LOOP
+        DBMS_OUTPUT.PUT_LINE('i : '|| i);
+    END LOOP;
+END;
+/
+
+BEGIN
+    FOR i IN 0..4 LOOP
+    CONTINUE WHEN MOD(i, 2) = 1;
+        DBMS_OUTPUT.PUT_LINE('i : '|| i);
+    END LOOP;
+END;
+/
+
+-- 1~10까지 홀수 출력하기
+BEGIN
+    FOR i IN 0..10 LOOP
+    CONTINUE WHEN MOD(i, 2) = 0;
+        DBMS_OUTPUT.PUT_LINE('i : '|| i);
+    END LOOP;
+END;
+/
+
+BEGIN
+    FOR i IN 0..10 LOOP
+    IF i MOD 2 = 1 THEN
+        DBMS_OUTPUT.PUT_LINE('i : '|| i);
+        END IF;
+    END LOOP;
+END;
+/
+
+
