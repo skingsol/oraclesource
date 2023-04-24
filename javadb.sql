@@ -124,3 +124,32 @@ FROM suser u, sorder o, paytype t, product p
 WHERE u.user_id = o.user_id AND u.pay_no = t.pay_no AND p.product_id = o.product_id AND u.user_id = 1155;
 
 
+-- 도서 테이블
+-- code, title, writer, price
+-- code : 1001(pk)
+-- title : '자바의 신'
+-- writer : '홍길동'
+-- price : 25000
+
+-- bookTBL 테이블 생성
+CREATE TABLE booktbl (
+    code NUMBER(4) PRIMARY KEY,
+    title NVARCHAR2(50) NOT NULL,
+    writer NVARCHAR2(20) NOT NULL,
+    price NUMBER(8) NOT NULL
+);
+
+INSERT INTO booktbl (code, title, writer, price) VALUES (1001, '이것이 자바다', '신용균', 25000);
+INSERT INTO booktbl (code, title, writer, price) VALUES (1002, '자바의 신', '강신용', 28000);
+INSERT INTO booktbl (code, title, writer, price) VALUES (1003, '오라클로 배우는 데이터베이스', '이지훈', 28000);
+INSERT INTO booktbl (code, title, writer, price) VALUES (1004, '자바 1000제', '김용만', 29000);
+INSERT INTO booktbl (code, title, writer, price) VALUES (1005, '자바 프로그래밍 입문', '박은종', 30000);
+
+commit;
+
+ALTER TABLE booktbl ADD DESCRIPTION NVARCHAR2(100);
+
+
+
+
+
