@@ -151,5 +151,159 @@ ALTER TABLE booktbl ADD DESCRIPTION NVARCHAR2(100);
 
 
 
+--member 테이블
+-- userid (영어, 숫자, 특수문자) 최대 12자 허용
+-- password (영어, 숫자, 특수문자) 최대 15자 허용
+-- name (한글)
+-- gender (한글, 남 or 여)
+-- email
+
+CREATE TABLE membertbl (
+    userid VARCHAR2(15) PRIMARY KEY,
+    password VARCHAR2(20) NOT NULL,
+    name NVARCHAR2(10) NOT NULL,
+    gender NVARCHAR2(2) NOT NULL,
+    email VARCHAR2(50) NOT NULL
+);
+
+INSERT INTO membertbl VALUES('hong123','hong123@', '홍길동', '남', 'hong123@gmail.com');
+COMMIT;
 
 
+
+-- 게시판
+-- 글번호(숫자, 시퀀스 삽입,  PK), 작성자(한글), 비밀번호(숫자,영문자), 제목(한글), 내용(한글), 파일첨부(파일명)
+-- 답변글 작성시 참조되는 글번호(숫자), 답변글 레벨(숫자), 답변글 순서(숫자), 조회수(숫자), 작성날짜
+
+CREATE TABLE board (
+    bno NUMBER(8) CONSTRAINT pk_board PRIMARY KEY,
+    name NVARCHAR2(10) NOT NULL,
+    password VARCHAR2(20) NOT NULL,
+    title NVARCHAR2(50) NOT NULL,
+    content NVARCHAR2(1000) NOT NULL,
+    attach NVARCHAR2(100),
+    re_ref NUMBER(8) NOT NULL,
+    re_lev NUMBER(8) NOT NULL,
+    re_seq NUMBER(8) NOT NULL,
+    cnt NUMBER(8) DEFAULT 0,
+    regdate DATE DEFAULT sysdate
+);
+
+-- 시퀀스 생성 board_seq
+CREATE SEQUENCE board_seq;
+
+COMMIT;
+
+-- 서브쿼리 -더미데이터 생성하기
+INSERT INTO board(bno,name,password,title,content,re_ref,re_lev,re_seq)
+(SELECT board_seq.nextval,name,password,title,content,board_seq.currval,re_lev,re_seq FROM board);
+
+COMMIT;
+-- 현재 최신글 상태 가져오기
+SELECT bno, title, re_ref, re_lev, re_seq FROM board WHERE bno=4115;
+
+INSERT INTO board(bno,name,password,title,content,attach,re_ref,re_lev,re_seq)
+VALUES(board_seq.nextval,'김댓글','12345','Re : 게시글','게시글', null,4115,1,1);
+
+-- 가장 최신글과 댓글 가지고 오기
+SELECT bno, title, re_ref, re_lev, re_seq FROM board WHERE re_ref=4115;
+
+-- 두번째 댓글 작성
+-- re_seq 가 값이 작을수록 최신글임
+-- UPDATE 구문에서 
+UPDATE board SET re_seq = re_seq + 1 WHERE re_ref = 4115 AND re_seq >0;
+
+commit;
+
+--가장 최신글과 댓글 가지고 오기(+ re_seq asc : 댓글의 최신)
+SELECT bno, title, re_ref, re_lev, re_seq FROM board WHERE re_ref=4115 ORDER BY re_seq;
+
+INSERT INTO board(bno,name,password,title,content,attach,re_ref,re_lev,re_seq)
+VALUES(board_seq.nextval,'김댓글','12345','Re : 게시글','게시글', null,4115,1,1);
+
+-- 댓글의 댓글 작성
+-- UPDATE / INSERT
+UPDATE board SET re_seq = re_seq + 1 WHERE re_ref = 4115 AND re_seq >2;
+INSERT INTO board(bno,name,password,title,content,attach,re_ref,re_lev,re_seq)
+VALUES(board_seq.nextval,'김댓글','12345','ReRe : 게시글','게시글', null,4115,2,3);
+
+
+--페이지 나누기
+-- ROWNUM : 조회된 결과에 번호를 매겨줌
+--          ORDER BY 구문에 INDEX 가 들어가지 않는다면 제대로 된 결과를 보장하지 않음
+--          PK 가 INDEX로 사용됨
+SELECT ROWNUM, bno, title FROM board ORDER BY bno DESC;
+
+SELECT ROWNUM, bno, title, re_ref, re_lev, re_seq 
+FROM board
+ORDER BY re_ref desc, re_seq ASC;
+
+-- 해결
+-- ORDER BY 구문을 먼저 실행한 후 ROWNUM 붙여야 함
+
+SELECT ROWNUM, bno, title, re_ref, re_lev, re_seq
+FROM(SELECT bno, title, re_ref, re_lev, re_seq 
+     FROM board ORDER BY re_ref desc, re_seq ASC)
+WHERE ROWNUM <= 30;
+
+-- 한 페이지에 30개의 목록을 보여준다 할 때
+-- 1 2 3 4 5 6 .....
+-- 1 page 요청 (1~30)
+-- 2 page 요청 (31~60)
+
+SELECT *
+FROM (SELECT ROWNUM rnum, bno, title, re_ref, re_lev, re_seq
+      FROM(SELECT bno, title, re_ref, re_lev, re_seq 
+      FROM board ORDER BY re_ref desc, re_seq ASC)
+      WHERE ROWNUM <= 30)
+WHERE rnum > 0;
+
+SELECT *
+FROM (SELECT ROWNUM rnum, bno, title, re_ref, re_lev, re_seq
+      FROM(SELECT bno, title, re_ref, re_lev, re_seq 
+      FROM board ORDER BY re_ref desc, re_seq ASC)
+      WHERE ROWNUM <= ?)
+WHERE rnum > ?;
+
+-- 1 page : rnum > 0, rownum <= 30
+-- 1 page : rnum > 30, rownum <= 60
+-- 1 page : rnum > 60, rownum <= 90
+
+-- 1, 2, 3
+-- n           30 * n-1        30 * n
+
+
+
+
+----- spring_board
+-- bon 숫자(10) 제약조건 pk 제약조건명 pk_spring_board
+-- title varchar2(200) 제약조건 not null
+-- content varchar2(2000) 제약조건 not null
+-- writer varchar2(50) 제약조건 not null
+-- regdate date defalt 로 현재시스템날짜
+-- updatedate date defalt 로 현재시스템날짜
+CREATE TABLE spring_board (
+    bno NUMBER(10) CONSTRAINT pk_spring_board PRIMARY KEY,
+    title varchar2(200) NOT NULL,
+    content varchar2(2000) NOT NULL,
+    writer varchar2(50) NOT NULL,    
+    regdate DATE DEFAULT sysdate,
+    updatedate DATE DEFAULT sysdate
+);
+-- 시퀀스 seq_board
+CREATE SEQUENCE seq_board;
+-- 커밋
+COMMIT;
+
+-- mybatis 연습용 테이블
+create table person(
+    id varchar(20) primary key,
+    name varchar2(30) not null);
+    
+SELECT * FROM person;
+
+INSERT INTO person VALUES('kim123','김길동');
+
+COMMIT;
+
+SELECT * FROM membertbl;
