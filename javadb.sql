@@ -307,3 +307,15 @@ INSERT INTO person VALUES('kim123','김길동');
 COMMIT;
 
 SELECT * FROM membertbl;
+
+
+-- 트랜잭션 테스트 테이블 
+-- 트랜잭션 : 하나의 업무에 여러개의 작은 업무들이 같이 묶여 있음 / 하나의 단위로 처리
+-- 계좌이체 : 계좌 출금 => 타 계좌 입금
+CREATE TABLE tbl_sample1(col1 VARCHAR2(500));
+CREATE TABLE tbl_sample2(col1 VARCHAR2(50));
+
+SELECT * FROM tbl_sample1;
+SELECT * FROM tbl_sample2;
+
+commit;
