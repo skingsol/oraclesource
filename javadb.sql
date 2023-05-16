@@ -319,3 +319,8 @@ SELECT * FROM tbl_sample1;
 SELECT * FROM tbl_sample2;
 
 commit;
+
+ALTER TABLE membertbl MODIFY password VARCHAR2(100);
+DELETE FROM membertbl WHERE userid='song123';
+
+commit;
