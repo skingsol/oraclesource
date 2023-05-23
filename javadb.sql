@@ -371,3 +371,7 @@ CREATE TABLE spring_reply(
 create sequence seq_reply;
 
 commit;
+
+insert into spring_reply(rno, bno, reply, replyer)
+values(seq_reply.nextval,1040,'댓글을 달아요','test1');
+commit;
