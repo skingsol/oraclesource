@@ -324,3 +324,50 @@ ALTER TABLE membertbl MODIFY password VARCHAR2(100);
 DELETE FROM membertbl WHERE userid='song123';
 
 commit;
+
+ALTER TABLE membertbl MODIFY
+    password varchar2(100);
+
+
+-- 페이지 나누기(GET 방식)
+-- rownum : 조회된 결과에 번호를 매겨줌
+-- spring_board : bno 가 pk 상황(order by 기준도 bno)
+-- 1 page : 가장 최신글 20개 
+-- 2 page : 그 다음 최신글 20개
+
+insert into spring_board(bno,title,content,writer)
+(select seq_board.nextval,title,content,writer from spring_board);
+
+commit;
+
+select count(*) from spring_board;
+
+-- 페이지 나누기를 할 때 필요한 sql 코드
+select * 
+from (select rownum rn, bno, title, writer
+      from (select bno, title, writer from spring_board order by bno desc)
+      where rownum <= 20)
+where rn>0;
+
+
+-- 오라클 힌트 사용
+select bno, title, writer,regdate,updatedate
+from (select /*+INDEX_DESC(spring_board pk_spring_board)*/ rownum rn, bno, title, writer,regdate,updatedate
+      from spring_board
+      where rownum <= 40)
+where rn > 20;
+
+
+-- 댓글 테이블
+CREATE TABLE spring_reply(
+    rno number(10,0) constraint pk_reply primary key, -- 댓글 글번호
+    bno number(10,0) not null,                        -- 원본글 글번호
+    reply varchar2(1000) not null,                    -- 댓글 내용
+    replyer varchar2(50) not null,                    -- 댓글 작성자
+    replydate date default sysdate,                   -- 댓글 작성날짜
+    constraint fk_reply_board foreign key(bno) references spring_board(bno) -- 외래키 제약 조건
+);
+
+create sequence seq_reply;
+
+commit;
