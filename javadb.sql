@@ -368,6 +368,9 @@ CREATE TABLE spring_reply(
     constraint fk_reply_board foreign key(bno) references spring_board(bno) -- 외래키 제약 조건
 );
 
+-- 댓글 테이블 수정(컬럼 추가) updatedate
+ALTER TABLE spring_reply ADD updatedate DATE default sysdate;
+
 create sequence seq_reply;
 
 commit;
@@ -375,3 +378,52 @@ commit;
 insert into spring_reply(rno, bno, reply, replyer)
 values(seq_reply.nextval,1040,'댓글을 달아요','test1');
 commit;
+
+
+-- spring_reply 인덱스 추가 설정
+create index idx_reply on spring_reply(bno desc, rno asc);
+
+
+select rno, bno, reply, replyer, replydate
+from (select /*+INDEX(spring_reply idx_reply)*/ rownum rn, rno, bno, reply, replyer, replydate
+      from spring_reply
+      where bno = 1040 and rownum <= 10)
+where rn > 20;
+
+-- spring_board 에 컬럼 추가(댓글 수 저장)
+alter table spring_board add replycnt number default 0;
+
+-- 이미 들어간 댓글 수 삽입
+update spring_board set replycnt = (select count(rno) from spring_reply where spring_board.bno = spring_reply.bno);
+
+select * from spring_board where bno = 1040;
+
+commit;
+
+-- 파일첨부
+-- spring_attach
+-- uuid, uploadpath, filename, filetype
+create table spring_attach(
+    uuid varchar2(100) constraint pk_attach primary key,
+    uploadpath varchar2(200) not null,
+    filename varchar2(100) not null,
+    filetype char(1) default '1',
+    bno number(10,0) not null,
+    constraint fk_board_attach foreign key(bno) references spring_board(bno)
+);
+
+
+-- spring_board bno 와 spring_attach bno 일치 시
+-- title, content, writer, bno, uuid,uploadpath, filetype, filename 등을 가지고 나오기
+-- inner join
+select sb.title, sb.content, sb.writer, sa.bno,  sa.uuid, sa.uploadpath, sa.filetype, sa.filename 
+from spring_board sb, spring_attach sa
+where sb.bno = sa.bno;
+-- 위와 같은 내용 join on 사용하여 작성시 아래처럼 됨
+--select title, content, writer, sa.bno, uuid, uploadpath, filetype, filename 
+--from spring_board sb join spring_attach sa on sb.bno = sa.bno
+--where sb.bno=#{bno};
+
+
+-- 어제 날짜의 첨부 목록 가져오기
+select * from spring_attach where uploadpath = to_char(sysdate-1, 'yyyy\mm\dd');
