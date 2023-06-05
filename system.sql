@@ -105,3 +105,6 @@ TEMPORARY TABLESPACE TEMP;
 
 -- 권한 부여
 GRANT CONNECT, RESOURCE TO test2;
+
+-- 테이블의 데이터크기 무제한으로 만드는 것
+alter user javadb quota unlimited on users;
