@@ -489,3 +489,4 @@ create table spring_member_auth(
 
         
 commit;
+

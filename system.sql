@@ -28,6 +28,7 @@ ALTER USER JAVADB QUOTA 2M ON USERS;
 GRANT CONNECT, RESOURCE TO JAVADB;
 
 
+
 CREATE USER SCOTT IDENTIFIED BY TIGER
 DEFAULT TABLESPACE USERS
 TEMPORARY TABLESPACE TEMP;
@@ -108,3 +109,28 @@ GRANT CONNECT, RESOURCE TO test2;
 
 -- 테이블의 데이터크기 무제한으로 만드는 것
 alter user javadb quota unlimited on users;
+
+
+
+
+-- projectdb 생성하기 절차
+-- 스키마 생성권한 
+ALTER SESSION SET "_ORACLE_SCRIPT" = TRUE; 
+
+-- projectdb 생성
+CREATE USER projectdb IDENTIFIED BY 12345
+DEFAULT TABLESPACE USERS
+TEMPORARY TABLESPACE TEMP;
+
+-- 테이블의 데이터크기 무제한으로 만드는 것
+ALTER USER projectdb QUOTA UNLIMITED ON USERS;
+
+-- GRANT : 권한 부여 (CONNECT와 RESOURCE 권한을 주는 구문) : 사용자 생성만으로는 할 수 있는게 없음
+GRANT CONNECT, RESOURCE TO projectdb;
+
+-- 뷰 생성 권한 부여
+GRANT CREATE VIEW TO projectdb;
+
+-- SYNONYM 생성 권한 부여
+GRANT CREATE SYNONYM TO projectdb;
+GRANT CREATE PUBLIC SYNONYM TO projectdb;
